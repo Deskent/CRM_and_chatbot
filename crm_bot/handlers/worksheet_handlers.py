@@ -2,8 +2,9 @@ from aiogram.dispatcher.filters import Text
 from aiogram.types import Message, CallbackQuery
 from aiogram.dispatcher import FSMContext
 
+from classes.api_requests import UserAPI
 from classes.keyboards_classes import StartMenu, get_categories, YesNo
-from config import logger, Dispatcher
+from config import logger, Dispatcher, bot_texts
 from classes.worksheets import Worksheet
 from states import UserState
 
@@ -16,7 +17,7 @@ async def ask_name_handler(message: Message, state: FSMContext):
     userdata.last_name = message.from_user.last_name
     userdata.telegram_id = message.from_user.id
     await state.update_data(userdata=userdata)
-    text = "Введите имя"
+    text = bot_texts.enter_name
     await message.answer(text, reply_markup=StartMenu.cancel_keyboard())
     await UserState.enter_name.set()
 
@@ -27,7 +28,7 @@ async def ask_link_handler(message: Message, state: FSMContext):
     userdata: Worksheet = data['userdata']
     userdata.name = message.text
     await state.update_data(userdata=userdata)
-    text = "Введите ссылку"
+    text = bot_texts.enter_link
     await message.answer(text, reply_markup=StartMenu.cancel_keyboard())
     await UserState.enter_link.set()
 
@@ -39,9 +40,9 @@ async def ask_category_handler(message: Message, state: FSMContext):
     userdata.target_link = message.text
     await state.update_data(userdata=userdata)
 
-    text = "Выберите категорию:"
+    text = bot_texts.enter_category
     await message.answer(text, reply_markup=StartMenu.cancel_keyboard())
-    text = 'Список категорий:'
+    text = bot_texts.category_list
     await message.answer(text, reply_markup=get_categories())
     await UserState.enter_category.set()
 
@@ -57,7 +58,7 @@ async def ask_price_handler(callback: CallbackQuery, state: FSMContext) -> None:
     userdata.category = category
     await state.update_data(userdata=userdata)
 
-    text = "Выберите бюджет:"
+    text = bot_texts.enter_price
     await callback.message.answer(text, reply_markup=StartMenu.cancel_keyboard())
     await UserState.enter_price.set()
 
@@ -69,7 +70,7 @@ async def ask_was_advertised_handler(message: Message, state: FSMContext):
     userdata.price = int(message.text)
     await state.update_data(userdata=userdata)
 
-    text = "Велась ли раньше работа над проектом?"
+    text = bot_texts.was_advertised
     await message.answer(
         text,
         reply_markup=YesNo.keyboard(
@@ -94,7 +95,7 @@ async def ask_what_after_handler(callback: CallbackQuery, state: FSMContext) -> 
     userdata.was_advertised = 'was_advertised' == callback.data
     await state.update_data(userdata=userdata)
 
-    text = "Что хотите видеть после сотрудничества со специалистом?"
+    text = bot_texts.what_after
     await callback.message.answer(text, reply_markup=StartMenu.cancel_keyboard())
     await UserState.what_after.set()
 
@@ -115,8 +116,8 @@ async def complete_worksheet_handler(message: Message, state: FSMContext):
         f"\nЧто дальше? {userdata.what_after}"
     )
     logger.debug(f'Userdata: {userdata.as_dict()}')
-
     await message.answer(text, reply_markup=StartMenu.keyboard())
+    await UserAPI.send_worksheet(userdata=userdata.as_dict())
     await state.finish()
 
 

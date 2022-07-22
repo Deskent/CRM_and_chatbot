@@ -4,6 +4,8 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from myloguru.my_loguru import get_logger
 
+from classes.bot_texts import BotTexts
+
 
 class Settings(BaseSettings):
     STAGE: str = 'undefined'
@@ -12,6 +14,7 @@ class Settings(BaseSettings):
     ADMINS: list = []
     DEBUG: bool = False
     BASE_API_URL: str
+    DB_KEY_VALIDATION: str
 
 
 settings = Settings(_env_file='.env', _env_file_encoding='utf-8')
@@ -24,3 +27,5 @@ tgToken: str = settings.TELEBOT_TOKEN
 bot = Bot(token=tgToken)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
+
+bot_texts = BotTexts()
