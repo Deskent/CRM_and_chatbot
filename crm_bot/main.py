@@ -1,6 +1,8 @@
 import logging
 
 from aiogram import executor
+
+from classes.keyboards_classes import StartMenu
 from config import bot, dp, settings
 from _resources import __appname__, __build__, __version__
 
@@ -18,7 +20,7 @@ logger = logging.getLogger(__name__)
 async def send_report_to_admins(text: str) -> None:
     for admin in settings.ADMINS:
         try:
-            await bot.send_message(chat_id=admin, text=text)
+            await bot.send_message(chat_id=admin, text=text, reply_markup=StartMenu.keyboard())
         except Exception as err:
             logger.error(f'{err} chat_id={admin}')
 
