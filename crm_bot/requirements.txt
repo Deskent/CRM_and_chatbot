@@ -1,0 +1,7 @@
+aiogram==2.19
+pydantic==1.9.1
+pytest-aio==1.4.1
+python-dotenv==0.19.2
+
+datastructurepack-deskent
+myloguru-deskent==0.0.12

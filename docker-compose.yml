@@ -1,0 +1,11 @@
+version: '3.9'
+
+services:
+  bot:
+    build: ./crm_bot
+    container_name: ${APPNAME}-${VERSION}
+    image: ${APPNAME}:${VERSION}
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
