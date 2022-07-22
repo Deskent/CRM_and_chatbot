@@ -1,0 +1,9 @@
+aiogram==2.19
+aioschedule==0.5.2
+python-dotenv==0.19.2
+Telethon==1.24.0
+psycopg2==2.9.3
+Django==4.0.6
+
+myloguru-deskent==0.0.12
+
