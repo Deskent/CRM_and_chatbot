@@ -61,3 +61,12 @@ class UserAPI(API):
             bot_texts.update_all(result.data)
             return True
 
+    @classmethod
+    @logger.catch
+    async def get_categories(cls: 'UserAPI') -> dict:
+        """Получить категории"""
+
+        endpoint: str = cls.__URL + '/get_categories'
+
+        result: 'DataStructure' = await cls._get_request(endpoint=endpoint)
+        return result.data if result else {}

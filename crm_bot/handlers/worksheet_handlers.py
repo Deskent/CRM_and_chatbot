@@ -1,6 +1,7 @@
 from aiogram.dispatcher.filters import Text
 from aiogram.types import Message, CallbackQuery
 from aiogram.dispatcher import FSMContext
+from datastructurepack import DataStructure
 
 from classes.api_requests import UserAPI
 from classes.keyboards_classes import StartMenu, get_categories, YesNo
@@ -11,6 +12,8 @@ from states import UserState
 
 @logger.catch
 async def ask_name_handler(message: Message, state: FSMContext):
+    if not await UserAPI.update_texts():
+        logger.warning('Texts update error.')
     userdata = Worksheet()
     userdata.username = message.from_user.username
     userdata.first_name = message.from_user.first_name
@@ -43,7 +46,19 @@ async def ask_category_handler(message: Message, state: FSMContext):
     text = bot_texts.enter_category
     await message.answer(text, reply_markup=StartMenu.cancel_keyboard())
     text = bot_texts.category_list
-    await message.answer(text, reply_markup=get_categories())
+
+    # TODO удалить заглушку:
+    categories = {
+        'target': 'Таргетированная реклама',
+        'content': 'Контент',
+        'strategy': 'Составление стратегии',
+        'consult': 'Консультация',
+    }
+
+    # TODO раскомментировать когда АПИ будет выдавать категории и удалить заглушку выше
+    # categories: dict = await UserAPI.get_categories()
+
+    await message.answer(text, reply_markup=get_categories(categories))
     await UserState.enter_category.set()
 
 
@@ -117,7 +132,11 @@ async def complete_worksheet_handler(message: Message, state: FSMContext):
     )
     logger.debug(f'Userdata: {userdata.as_dict()}')
     await message.answer(text, reply_markup=StartMenu.keyboard())
-    await UserAPI.send_worksheet(userdata=userdata.as_dict())
+    result: 'DataStructure' = await UserAPI.send_worksheet(userdata=userdata.as_dict())
+    text = bot_texts.worksheet_not_ok
+    if result and result.success:
+        text = bot_texts.worksheet_ok
+    await message.answer(text, reply_markup=StartMenu.keyboard())
     await state.finish()
 
 
