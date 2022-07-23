@@ -15,6 +15,7 @@ class OrderAdminModel(admin.ModelAdmin):
     list_display = ['id', 'category', 'price', 'what_after']
     list_filter = ['client', 'category']
     search_fields = ['client']
+    list_editable = ['category', 'price', 'what_after']
 
 
 admin.site.register(Client, ClientAdminModel)
