@@ -34,12 +34,13 @@ class Category(models.Model):
 
 
 class Client(models.Model):
-    name = models.CharField(default='', blank=True, max_length=50, verbose_name='Имя клиента')
+    name = models.CharField(max_length=50, verbose_name='Имя клиента')
     first_name = models.CharField(default='', blank=True, max_length=50, verbose_name='Имя')
     last_name = models.CharField(default='', blank=True, max_length=50, verbose_name='Фамилия')
     username = models.CharField(default='', blank=True, max_length=50, verbose_name='Ник')
     telegram_id = models.BigIntegerField(verbose_name='Телеграм ID')
-    note = models.TextField(default='', blank=True, max_length=1500, verbose_name='описание')
+    description = models.TextField(
+        default='', blank=True, max_length=1500, verbose_name='Доп информация')
 
     class Meta:
         db_table = 'clients'
@@ -52,13 +53,13 @@ class Client(models.Model):
 
 class Order(models.Model):
     client = models.ForeignKey(Client, related_name='orders', on_delete=models.CASCADE)
-    target_link = models.URLField(verbose_name='Целевая ссылка')
+    target_link = models.CharField(
+        max_length=250, default='', blank=True, verbose_name='Целевая ссылка')
     category = models.ForeignKey(
         Category, related_name='client', verbose_name='Категория', on_delete=models.CASCADE)
     price = models.IntegerField(validators=[MinValueValidator(1)], verbose_name='Цена')
     was_advertised = models.BooleanField(default=False, verbose_name='Была реклама')
-    # TODO can be a URL?
-    what_after = models.CharField(max_length=100, verbose_name='Что после')
+    what_after = models.TextField(max_length=1500, verbose_name='Что после')
 
     def __str__(self):
         return f'Заказ №{self.id}'
@@ -67,4 +68,9 @@ class Order(models.Model):
         db_table = 'orders'
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
-# Order.objects.select_related('client').select_related('category').all()[0].__dict__
+
+
+class Texts(models.Model):
+    title = models.CharField(max_length=50, unique=True, verbose_name='Поле бота')
+    text = models.TextField(max_length=1000, verbose_name='Текст')
+    description = models.CharField(max_length=50, verbose_name='Описание')

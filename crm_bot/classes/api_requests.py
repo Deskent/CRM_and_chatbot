@@ -36,7 +36,7 @@ class API:
 class UserAPI(API):
     """Класс для работы с АПИ пользователя"""
 
-    __URL: str = '/users'
+    __URL: str = ''
 
     @classmethod
     @logger.catch
@@ -51,10 +51,10 @@ class UserAPI(API):
 
     @classmethod
     @logger.catch
-    async def update_texts(cls: 'UserAPI') -> bool:
+    async def get_texts(cls: 'UserAPI') -> bool:
         """Обновить тексты"""
 
-        endpoint: str = cls.__URL + '/update_texts'
+        endpoint: str = cls.__URL + '/get_texts'
 
         result: 'DataStructure' = await cls._get_request(endpoint=endpoint)
         if result and result.success and result.data:

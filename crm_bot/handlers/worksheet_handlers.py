@@ -12,7 +12,7 @@ from states import UserState
 
 @logger.catch
 async def ask_name_handler(message: Message, state: FSMContext):
-    if not await UserAPI.update_texts():
+    if not await UserAPI.get_texts():
         logger.warning('Texts update error.')
     userdata = Worksheet()
     userdata.username = message.from_user.username
