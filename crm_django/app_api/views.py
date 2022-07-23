@@ -10,11 +10,6 @@ class GetWorksheetsViewSet(ListAPIView, GenericAPIView):
     serializer_class = AllIfoSerializerModelAlt
     queryset = Order.objects.select_related('client').select_related('category').all()
 
-    # def get_queryset(self):
-    #     a = self.queryset[0]
-    #     print(a.client_name)
-    #     aaa = 10
-
     def get(self, request, *args, **kwargs):
         return self.list(request)
 
