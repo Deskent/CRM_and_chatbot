@@ -13,7 +13,7 @@ services:
     env_file:
       - ./.env
     ports:
-      - '8000:8000'
+      - '8005:8000'
     volumes:
       - ./${APPNAME}_django/logs:/app/logs/
       - ./${APPNAME}_django/static:/app/static/
