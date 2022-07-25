@@ -4,9 +4,10 @@ from aiogram.dispatcher import FSMContext
 from datastructurepack import DataStructure
 
 from classes.api_requests import UserAPI
-from classes.keyboards_classes import StartMenu, get_categories, YesNo
+from classes.errors_reporter import MessageReporter
+from classes.keyboards_classes import StartMenu, get_categories_keyboard, YesNo
 from config import logger, Dispatcher, bot_texts
-from classes.worksheets import Worksheet
+from classes.worksheets import Worksheet, Category
 from states import UserState
 
 
@@ -47,18 +48,11 @@ async def ask_category_handler(message: Message, state: FSMContext):
     await message.answer(text, reply_markup=StartMenu.cancel_keyboard())
     text = bot_texts.category_list
 
-    # TODO удалить заглушку:
-    categories = {
-        'target': 'Таргетированная реклама',
-        'content': 'Контент',
-        'strategy': 'Составление стратегии',
-        'consult': 'Консультация',
-    }
-
-    # TODO раскомментировать когда АПИ будет выдавать категории и удалить заглушку выше
-    # categories: dict = await UserAPI.get_categories()
-
-    await message.answer(text, reply_markup=get_categories(categories))
+    categories: dict[int, str] = await UserAPI.get_categories()
+    if not categories:
+        await MessageReporter.send_report_to_admins('Categories not found.')
+    Category.categories = categories
+    await message.answer(text, reply_markup=get_categories_keyboard(categories))
     await UserState.enter_category.set()
 
 
@@ -67,10 +61,10 @@ async def ask_price_handler(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
     await callback.message.delete()
 
-    category: str = callback.data.rsplit('_', maxsplit=1)[-1]
+    category_id: int = int(callback.data.rsplit('_', maxsplit=1)[-1])
     data: dict = await state.get_data()
     userdata: Worksheet = data['userdata']
-    userdata.category = category
+    userdata.category_id = category_id
     await state.update_data(userdata=userdata)
 
     text = bot_texts.enter_price
@@ -125,7 +119,7 @@ async def complete_worksheet_handler(message: Message, state: FSMContext):
         f"Ваша заявка:"
         f"\nИмя: {userdata.name}"
         f"\nСсылка: {userdata.target_link}"
-        f"\nКатегория: {userdata.category}"
+        f"\nКатегория: {Category.categories[userdata.category_id]}"
         f"\nБюджет: {userdata.price}"
         f"\nРекламировали раньше? {'Да' if userdata.was_advertised else 'Нет'}"
         f"\nЧто дальше? {userdata.what_after}"

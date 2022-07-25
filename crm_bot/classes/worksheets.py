@@ -1,6 +1,10 @@
 from pydantic import BaseModel
 
 
+class Category:
+    categories: dict = []
+
+
 class Worksheet(BaseModel):
     telegram_id: int = None
     name: str = None
@@ -8,7 +12,7 @@ class Worksheet(BaseModel):
     last_name: str = None
     username: str = None
     target_link: str = None
-    category: str = None
+    category_id: int = None
     price: int = None
     was_advertised: bool = None
     what_after: str = None
