@@ -16,7 +16,7 @@ async def ask_name_handler(message: Message, state: FSMContext):
     if not await UserAPI.get_texts():
         logger.warning('Texts update error.')
     userdata = Worksheet()
-    userdata.username = message.from_user.username
+    userdata.username = '@' + message.from_user.username if message.from_user.username else 'No name'
     userdata.first_name = message.from_user.first_name
     userdata.last_name = message.from_user.last_name
     userdata.telegram_id = message.from_user.id
@@ -61,7 +61,7 @@ async def ask_price_handler(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
     await callback.message.delete()
 
-    category_id: int = int(callback.data.rsplit('_', maxsplit=1)[-1])
+    category_id: str = callback.data.rsplit('_', maxsplit=1)[-1]
     data: dict = await state.get_data()
     userdata: Worksheet = data['userdata']
     userdata.category_id = category_id
@@ -76,7 +76,11 @@ async def ask_price_handler(callback: CallbackQuery, state: FSMContext) -> None:
 async def ask_was_advertised_handler(message: Message, state: FSMContext):
     data: dict = await state.get_data()
     userdata: Worksheet = data['userdata']
-    userdata.price = int(message.text)
+    userdata.price = check_is_int(message.text)
+    if not userdata.price:
+        text = "Ошибка.\n" + bot_texts.enter_price
+        await message.answer(text, reply_markup=StartMenu.cancel_keyboard())
+        return
     await state.update_data(userdata=userdata)
 
     text = bot_texts.was_advertised
@@ -128,10 +132,21 @@ async def complete_worksheet_handler(message: Message, state: FSMContext):
     await message.answer(text, reply_markup=StartMenu.keyboard())
     result: 'DataStructure' = await UserAPI.send_worksheet(userdata=userdata.as_dict())
     text = bot_texts.worksheet_not_ok
-    if result and result.success:
+    if result and result.status == 201:
         text = bot_texts.worksheet_ok
     await message.answer(text, reply_markup=StartMenu.keyboard())
     await state.finish()
+
+
+@logger.catch
+def check_is_int(text: str) -> int:
+    """Проверяет что в строке пришло положительное число и возвращает его обратно если да"""
+
+    if text.isdigit():
+        if int(text) > 0:
+            return int(text)
+
+    return 0
 
 
 @logger.catch
