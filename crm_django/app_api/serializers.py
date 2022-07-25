@@ -62,7 +62,7 @@ class SetOrderSerializerModel(serializers.Serializer):
     last_name = serializers.CharField(max_length=50)
     username = serializers.CharField(max_length=50)
     target_link = serializers.CharField(max_length=50)
-    category = serializers.IntegerField()
+    category_id = serializers.IntegerField()
     price = serializers.IntegerField()
     was_advertised = serializers.BooleanField()
     what_after = serializers.CharField(max_length=200)
