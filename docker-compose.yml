@@ -2,14 +2,14 @@ version: '3.9'
 
 services:
   crm:
-    build: ./${APPNAME}_django
+    build: ./crm_django
     container_name: ${APPNAME}-django-${VERSION}
     image: ${APPNAME}-django-${VERSION}
     command: >
       sh -c "python manage.py makemigrations &&
              python manage.py migrate &&
              python manage.py shell < createadmin.py &&
-             gunicorn --env DJANGO_SETTINGS_MODULE=${APPNAME}_django.settings -b 0.0.0.0:8000 -w 3 ${APPNAME}_django.wsgi"
+             gunicorn --env DJANGO_SETTINGS_MODULE=crm_django.settings -b 0.0.0.0:8000 -w 3 crm_django.wsgi"
     env_file:
       - ./.env
     ports:
@@ -18,7 +18,7 @@ services:
       - ./${APPNAME}_django/logs:/app/logs/
       - ./${APPNAME}_django/static:/app/static/
   bot:
-    build: ./${APPNAME}_bot
+    build: ./crm_bot
     container_name: ${APPNAME}-bot-${VERSION}
     image: ${APPNAME}-bot:${VERSION}
     env_file:
