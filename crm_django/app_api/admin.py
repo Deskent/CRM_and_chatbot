@@ -23,8 +23,9 @@ class OrderAdminModel(admin.ModelAdmin):
 
 
 class TextsAdminModel(admin.ModelAdmin):
-    list_display = ['id', 'title', 'text', 'description']
-    list_editable = ['title', 'text', 'description']
+    list_display = ['id', 'text', 'description']
+    list_editable = ['text', 'description']
+    readonly_fields = ['title']
 
 
 admin.site.register(Client, ClientAdminModel)
