@@ -79,18 +79,12 @@ class YesNo:
         )
 
 
-def get_categories() -> InlineKeyboardMarkup:
-    categories = {
-        'target': 'Таргетированная реклама',
-        'content': 'Контент',
-        'strategy': 'Составление стратегии',
-        'consult': 'Консультация',
-    }
+def get_categories_keyboard(categories: dict[int, str]) -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup(row_width=1)
-    for key, name in categories.items():
+    for id, name in categories.items():
         keyboard.add(InlineKeyboardButton(
             text=name,
-            callback_data=f'category_{key}'
+            callback_data=f'category_{id}'
         ))
     return keyboard
 

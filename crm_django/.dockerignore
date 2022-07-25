@@ -1,0 +1,9 @@
+.*
+Dockerfile
+README.md
+/logs
+/venv
+/spam
+*.yml
+*.sh
+/test-reports

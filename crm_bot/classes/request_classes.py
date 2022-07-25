@@ -7,7 +7,7 @@ import aiohttp.http_exceptions
 
 from datastructurepack import DataStructure
 from classes.errors_reporter import MessageReporter
-from config import logger
+from config import logger, settings
 
 
 class RequestSender(ABC):
@@ -24,19 +24,20 @@ class RequestSender(ABC):
         self._params: dict = {
             'url': self.url,
         }
-        # headers: dict = {
-        #     "token": DB_KEY_VALIDATION
-        # }
+        headers: dict = {
+            "token": settings.DB_KEY_VALIDATION
+        }
         text: str = ''
         session_params: dict = {
             "trust_env": True,
             "connector": aiohttp.TCPConnector(),
-            # "headers": headers
+            "headers": headers
         }
         answer: dict = {}
         try:
             async with aiohttp.ClientSession(**session_params) as session:
                 answer: dict = await self._send(session)
+                logger.debug(f"Answer: {answer}")
         except aiohttp.client_exceptions.ClientConnectorError as err:
             logger.error(f"aiohttp.client_exceptions.ClientConnectorError: {err}")
             answer.update(status=407, err=err)
