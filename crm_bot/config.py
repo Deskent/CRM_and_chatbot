@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     STAGE: str = 'undefined'
     BASE_API_URL: str
     DB_KEY_VALIDATION: str
+    GROUP_ID: int
 
 
 settings = Settings(_env_file='.env', _env_file_encoding='utf-8')
