@@ -16,7 +16,7 @@ async def ask_name_handler(message: Message, state: FSMContext):
     if not await UserAPI.get_texts():
         logger.warning('Texts update error.')
     userdata = Worksheet()
-    userdata.username = message.from_user.username
+    userdata.username = '@' + message.from_user.username if message.from_user.username else 'No name'
     userdata.first_name = message.from_user.first_name
     userdata.last_name = message.from_user.last_name
     userdata.telegram_id = message.from_user.id
@@ -132,7 +132,7 @@ async def complete_worksheet_handler(message: Message, state: FSMContext):
     await message.answer(text, reply_markup=StartMenu.keyboard())
     result: 'DataStructure' = await UserAPI.send_worksheet(userdata=userdata.as_dict())
     text = bot_texts.worksheet_not_ok
-    if result and result.success:
+    if result and result.status == 201:
         text = bot_texts.worksheet_ok
     await message.answer(text, reply_markup=StartMenu.keyboard())
     await state.finish()

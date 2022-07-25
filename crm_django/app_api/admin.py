@@ -4,12 +4,15 @@ from app_api.models import Client, Category, Order, Texts
 
 
 class ClientAdminModel(admin.ModelAdmin):
-    list_display = ['username', 'last_name', 'first_name', 'id', 'telegram_id']
+    list_display = ['username', 'name', 'last_name', 'first_name']
+    list_editable = ['name']
+    list_filter = ['name']
+    search_fields = ['name', 'username']
 
 
 class CategoryAdminModel(admin.ModelAdmin):
-    list_display = ['id', 'name', 'description']
-    list_editable = ['name', 'description']
+    list_display = ['id', 'description']
+    list_editable = ['description']
 
 
 class OrderAdminModel(admin.ModelAdmin):

@@ -43,11 +43,9 @@ class UserAPI(API):
     async def send_worksheet(cls: 'UserAPI', userdata: dict) -> 'DataStructure':
         """Отправить анкету"""
 
-        endpoint: str = cls.__URL + '/send_worksheet'
-        data = {
-            "worksheet": userdata
-        }
-        return await cls._post_request(data=data, endpoint=endpoint)
+        endpoint: str = cls.__URL + '/send_worksheet/'
+
+        return await cls._post_request(data=userdata, endpoint=endpoint)
 
     @classmethod
     @logger.catch
