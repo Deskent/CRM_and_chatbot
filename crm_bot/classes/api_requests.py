@@ -57,16 +57,19 @@ class UserAPI(API):
         endpoint: str = cls.__URL + '/get_texts'
 
         result: 'DataStructure' = await cls._get_request(endpoint=endpoint)
-        if result and result.success and result.data:
+        if result and result.status == 200 and result.data:
             bot_texts.update_all(result.data)
             return True
 
     @classmethod
     @logger.catch
-    async def get_categories(cls: 'UserAPI') -> dict:
+    async def get_categories(cls: 'UserAPI') -> dict[int, str]:
         """Получить категории"""
 
         endpoint: str = cls.__URL + '/get_categories'
 
         result: 'DataStructure' = await cls._get_request(endpoint=endpoint)
-        return result.data if result else {}
+        if result and result.status == 200 and result.data:
+            return result.data
+        logger.warning(f'Categories getting error: {result}')
+        return {}
