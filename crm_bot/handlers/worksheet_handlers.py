@@ -19,8 +19,8 @@ async def ask_name_handler(message: Message, state: FSMContext):
         logger.warning('Texts update error.')
     userdata = Worksheet()
     userdata.username = '@' + message.from_user.username if message.from_user.username else 'No name'
-    userdata.first_name = message.from_user.first_name
-    userdata.last_name = message.from_user.last_name
+    userdata.first_name = message.from_user.first_name if message.from_user.first_name else 'No name'
+    userdata.last_name = message.from_user.last_name if message.from_user.last_name else 'No name'
     userdata.telegram_id = message.from_user.id
     await state.update_data(userdata=userdata)
     text = bot_texts.enter_name
