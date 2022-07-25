@@ -15,9 +15,8 @@ services:
     ports:
       - '8005:8000'
     volumes:
-      - ./${APPNAME}_django/logs:/app/logs/
-      - ./${APPNAME}_django/static:/app/static/
-  bot:
+      - ./crm_django/logs:/app/logs/
+  app:
     build: ./crm_bot
     container_name: ${APPNAME}-bot-${VERSION}
     image: ${APPNAME}-bot:${VERSION}
