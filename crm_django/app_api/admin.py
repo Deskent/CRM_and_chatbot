@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from app_api.models import Client, Category, Order
+from app_api.models import Client, Category, Order, Texts
 
 
 class ClientAdminModel(admin.ModelAdmin):
@@ -18,7 +18,13 @@ class OrderAdminModel(admin.ModelAdmin):
     list_editable = ['category', 'price', 'what_after']
 
 
+class TextsAdminModel(admin.ModelAdmin):
+    list_display = ['id', 'title', 'text']
+    list_editable = ['title']
+
+
 admin.site.register(Client, ClientAdminModel)
 admin.site.register(Category, CategoryAdminModel)
 admin.site.register(Order, OrderAdminModel)
+admin.site.register(Texts, TextsAdminModel)
 

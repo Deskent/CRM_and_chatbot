@@ -74,3 +74,8 @@ class Texts(models.Model):
     title = models.CharField(max_length=50, unique=True, verbose_name='Поле бота')
     text = models.TextField(max_length=1000, verbose_name='Текст')
     description = models.CharField(max_length=50, verbose_name='Описание')
+
+    class Meta:
+        db_table = 'texts'
+        verbose_name = 'Текст'
+        verbose_name_plural = 'Тексты'
