@@ -140,7 +140,7 @@ async def complete_worksheet_handler(message: Message, state: FSMContext):
             new_order_text = (
                 f"Новая заявка:"
                 f"\n{order_text}"
-                f"\nКлиент: @{userdata.username}"
+                f"\nКлиент: {userdata.username}"
             )
             await bot.send_message(
                 chat_id=f'-100{settings.GROUP_ID}',
