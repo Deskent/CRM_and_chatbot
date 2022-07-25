@@ -44,7 +44,7 @@ class DBIOrder:
     @classmethod
     def get_dict(
             cls,
-            category: int,
+            category_id: int,
             target_link='',
             price=0,
             was_advertised=False,
@@ -52,7 +52,7 @@ class DBIOrder:
             **kwargs
     ):
         return {
-            'category_id': category,
+            'category_id': category_id,
             'target_link': target_link,
             'price': price,
             'was_advertised': was_advertised,

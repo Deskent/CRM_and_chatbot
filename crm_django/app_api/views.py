@@ -1,20 +1,13 @@
 from django.http import JsonResponse
-from rest_framework.response import Response
-from rest_framework import status
-from django.views import View
 from rest_framework.generics import (
-    views, ListAPIView, GenericAPIView, RetrieveAPIView, CreateAPIView)
-from app_api.serializers import (
-    CategorySerializerModel,
-    ClientSerializerModel,
-    AllIfoSerializerModel,
-    AllIfoSerializerModelAlt,
-    TextsSerializerModel, SetOrderSerializerModel,
-)
-from app_api.models import Client, Category, Order, Texts
-from app_api.services import DBITexts, DBIClient, DBIOrder, DBICategories
+    views, ListAPIView, GenericAPIView, CreateAPIView)
 
-from django.db.models.manager import Manager
+from app_api.models import Client, Order
+from app_api.serializers import (
+    AllIfoSerializerModelAlt,
+    SetOrderSerializerModel,
+)
+from app_api.services import DBITexts, DBIClient, DBIOrder, DBICategories
 
 
 class GetWorksheetsViewSet(ListAPIView, GenericAPIView):
