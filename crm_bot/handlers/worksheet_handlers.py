@@ -6,11 +6,13 @@ from datastructurepack import DataStructure
 from classes.api_requests import UserAPI
 from classes.errors_reporter import MessageReporter
 from classes.keyboards_classes import StartMenu, get_categories_keyboard, YesNo
-from config import logger, Dispatcher, bot_texts
+from config import logger, Dispatcher, bot_texts, bot, settings
 from classes.worksheets import Worksheet, Category
+from decorators.for_handlers import check_message_private
 from states import UserState
 
 
+@check_message_private
 @logger.catch
 async def ask_name_handler(message: Message, state: FSMContext):
     if not await UserAPI.get_texts():
@@ -118,9 +120,9 @@ async def complete_worksheet_handler(message: Message, state: FSMContext):
     data: dict = await state.get_data()
     userdata: Worksheet = data['userdata']
     userdata.what_after = message.text
-
+    text = "Ваша заявка:"
+    await message.answer(text, reply_markup=StartMenu.keyboard())
     text = (
-        f"Ваша заявка:"
         f"\nИмя: {userdata.name}"
         f"\nСсылка: {userdata.target_link}"
         f"\nКатегория: {Category.categories[userdata.category_id]}"
@@ -132,8 +134,12 @@ async def complete_worksheet_handler(message: Message, state: FSMContext):
     await message.answer(text, reply_markup=StartMenu.keyboard())
     result: 'DataStructure' = await UserAPI.send_worksheet(userdata=userdata.as_dict())
     text = bot_texts.worksheet_not_ok
-    if result and result.status == 201:
+    if result and result.status in range(200, 300):
         text = bot_texts.worksheet_ok
+        try:
+            await bot.send_message(settings.GROUP_ID, text)
+        except Exception as err:
+            logger.exception(err)
     await message.answer(text, reply_markup=StartMenu.keyboard())
     await state.finish()
 
