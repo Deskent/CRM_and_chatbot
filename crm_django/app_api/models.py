@@ -57,8 +57,8 @@ class Order(models.Model):
         max_length=250, default='', blank=True, verbose_name='Целевая ссылка')
     category = models.ForeignKey(
         Category, related_name='client', verbose_name='Категория', on_delete=models.CASCADE)
-    price = models.IntegerField(validators=[MinValueValidator(1)], verbose_name='Цена')
-    was_advertised = models.BooleanField(default=False, verbose_name='Была реклама')
+    price = models.IntegerField(validators=[MinValueValidator(1)], verbose_name='Бюджет')
+    was_advertised = models.BooleanField(default=False, verbose_name='Была реклама?')
     what_after = models.TextField(max_length=1500, verbose_name='Что после')
 
     def __str__(self):
@@ -72,8 +72,8 @@ class Order(models.Model):
 
 class Texts(models.Model):
     title = models.CharField(max_length=50, unique=True, verbose_name='Поле бота')
-    text = models.TextField(max_length=1000, verbose_name='Текст')
-    description = models.CharField(max_length=50, verbose_name='Описание')
+    text = models.TextField(max_length=1000, verbose_name='Текст вопроса')
+    description = models.CharField(max_length=50, verbose_name='Описание (где будет задан)')
 
     class Meta:
         db_table = 'texts'
