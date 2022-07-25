@@ -37,6 +37,7 @@ class RequestSender(ABC):
         try:
             async with aiohttp.ClientSession(**session_params) as session:
                 answer: dict = await self._send(session)
+                logger.debug(f"Answer: {answer}")
         except aiohttp.client_exceptions.ClientConnectorError as err:
             logger.error(f"aiohttp.client_exceptions.ClientConnectorError: {err}")
             answer.update(status=407, err=err)

@@ -57,7 +57,7 @@ class UserAPI(API):
         endpoint: str = cls.__URL + '/get_texts'
 
         result: 'DataStructure' = await cls._get_request(endpoint=endpoint)
-        if result and result.success and result.data:
+        if result and result.status == 200 and result.data:
             bot_texts.update_all(result.data)
             return True
 
