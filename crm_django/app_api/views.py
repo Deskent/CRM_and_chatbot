@@ -12,7 +12,7 @@ from app_api.serializers import (
     TextsSerializerModel, SetOrderSerializerModel,
 )
 from app_api.models import Client, Category, Order, Texts
-from app_api.services import DBITexts, DBIClient, DBIOrder
+from app_api.services import DBITexts, DBIClient, DBIOrder, DBICategories
 
 from django.db.models.manager import Manager
 
@@ -25,12 +25,12 @@ class GetWorksheetsViewSet(ListAPIView, GenericAPIView):
         return self.list(request)
 
 
-class GetCategoriesViewSet(ListAPIView, GenericAPIView):
-    serializer_class = CategorySerializerModel
-    queryset = Category.objects.all()
+class GetCategoriesViewSet(views.APIView):
+    data = DBICategories.get_texts
 
     def get(self, request, *args, **kwargs):
-        return self.list(request)
+        data = self.data()
+        return JsonResponse(data=data, safe=False)
 
 
 class GetTextsViewSet(views.APIView):
