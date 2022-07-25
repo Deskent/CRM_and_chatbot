@@ -137,7 +137,7 @@ async def complete_worksheet_handler(message: Message, state: FSMContext):
     if result and result.status in range(200, 300):
         text = bot_texts.worksheet_ok
         try:
-            await bot.send_message(settings.GROUP_ID, text)
+            await bot.send_message(chat_id=f'-100{settings.GROUP_ID}', text=text)
         except Exception as err:
             logger.exception(err)
     await message.answer(text, reply_markup=StartMenu.keyboard())
