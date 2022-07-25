@@ -137,9 +137,14 @@ async def complete_worksheet_handler(message: Message, state: FSMContext):
     if result and result.status in range(200, 300):
         text = bot_texts.worksheet_ok
         try:
+            new_order_text = (
+                f"Новая заявка:"
+                f"\n{order_text}"
+                f"\nКлиент: @{userdata.username}"
+            )
             await bot.send_message(
                 chat_id=f'-100{settings.GROUP_ID}',
-                text=f"Новая заявка:\n{order_text}"
+                text=new_order_text
             )
         except Exception as err:
             logger.exception(err)
