@@ -122,7 +122,7 @@ async def complete_worksheet_handler(message: Message, state: FSMContext):
     userdata.what_after = message.text
     text = "Ваша заявка:"
     await message.answer(text, reply_markup=StartMenu.keyboard())
-    text = (
+    order_text = (
         f"\nИмя: {userdata.name}"
         f"\nСсылка: {userdata.target_link}"
         f"\nКатегория: {Category.categories[userdata.category_id]}"
@@ -131,13 +131,16 @@ async def complete_worksheet_handler(message: Message, state: FSMContext):
         f"\nЧто дальше? {userdata.what_after}"
     )
     logger.debug(f'Userdata: {userdata.as_dict()}')
-    await message.answer(text, reply_markup=StartMenu.keyboard())
+    await message.answer(order_text, reply_markup=StartMenu.keyboard())
     result: 'DataStructure' = await UserAPI.send_worksheet(userdata=userdata.as_dict())
     text = bot_texts.worksheet_not_ok
     if result and result.status in range(200, 300):
         text = bot_texts.worksheet_ok
         try:
-            await bot.send_message(chat_id=f'-100{settings.GROUP_ID}', text=text)
+            await bot.send_message(
+                chat_id=f'-100{settings.GROUP_ID}',
+                text=f"Новая заявка:\n{order_text}"
+            )
         except Exception as err:
             logger.exception(err)
     await message.answer(text, reply_markup=StartMenu.keyboard())
