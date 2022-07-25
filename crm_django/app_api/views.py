@@ -34,10 +34,10 @@ class GetCategoriesViewSet(ListAPIView, GenericAPIView):
 
 
 class GetTextsViewSet(views.APIView):
-    data = DBITexts.get_texts()
+    data = DBITexts.get_texts
 
     def get(self, request, *args, **kwargs):
-        data = self.data
+        data = self.data()
         return JsonResponse(data=data, safe=False)
 
 
