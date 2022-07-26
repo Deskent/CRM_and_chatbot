@@ -138,13 +138,14 @@ async def finish_interview(message: Message, userdata: Worksheet):
 
     text = "Ваша заявка:"
     await message.answer(text, reply_markup=StartMenu.keyboard())
-    answers: str = '\n'.join(f"{elem[0]}\n{elem[1]}" for elem in userdata.poll)
+
     order_text = (
         f"\nИмя: {userdata.name}"
         f"\nКатегория: {Category.categories[str(userdata.category_id)]}"
-        f"\nВопросы:\n{answers}"
     )
-
+    if userdata.poll:
+        answers: str = '\n'.join(f"{elem[0]}\n{elem[1]}" for elem in userdata.poll)
+        order_text += f"\nВопросы:\n{answers}"
     logger.debug(f'Userdata: {userdata.as_dict()}')
 
     await message.answer(order_text, reply_markup=StartMenu.keyboard())

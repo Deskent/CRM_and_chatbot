@@ -12,7 +12,7 @@ class Worksheet(BaseModel):
     last_name: str = None
     username: str = None
     category_id: int = None
-    poll: list[list[str]] = None
+    poll: list[list[str]] = []
 
     def as_dict(self) -> dict:
         return self.__dict__
