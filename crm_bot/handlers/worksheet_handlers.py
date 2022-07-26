@@ -4,20 +4,24 @@ from aiogram.dispatcher import FSMContext
 from datastructurepack import DataStructure
 
 from classes.api_requests import UserAPI
-from classes.keyboards_classes import StartMenu, get_categories, YesNo
-from config import logger, Dispatcher, bot_texts
-from classes.worksheets import Worksheet
+from classes.errors_reporter import MessageReporter
+from classes.keyboards_classes import StartMenu, get_categories_keyboard, YesNo
+from config import logger, Dispatcher, bot_texts, bot, settings
+from classes.worksheets import Worksheet, Category
+from decorators.for_handlers import check_message_private
 from states import UserState
 
 
+@check_message_private
 @logger.catch
 async def ask_name_handler(message: Message, state: FSMContext):
-    if not await UserAPI.update_texts():
+    if not await UserAPI.get_texts():
         logger.warning('Texts update error.')
     userdata = Worksheet()
-    userdata.username = message.from_user.username
-    userdata.first_name = message.from_user.first_name
-    userdata.last_name = message.from_user.last_name
+    # todo если нет юзернейма - спрашивать телефон или другой контакт
+    userdata.username = '@' + message.from_user.username if message.from_user.username else 'No name'
+    userdata.first_name = message.from_user.first_name if message.from_user.first_name else 'No name'
+    userdata.last_name = message.from_user.last_name if message.from_user.last_name else 'No name'
     userdata.telegram_id = message.from_user.id
     await state.update_data(userdata=userdata)
     text = bot_texts.enter_name
@@ -47,18 +51,11 @@ async def ask_category_handler(message: Message, state: FSMContext):
     await message.answer(text, reply_markup=StartMenu.cancel_keyboard())
     text = bot_texts.category_list
 
-    # TODO удалить заглушку:
-    categories = {
-        'target': 'Таргетированная реклама',
-        'content': 'Контент',
-        'strategy': 'Составление стратегии',
-        'consult': 'Консультация',
-    }
-
-    # TODO раскомментировать когда АПИ будет выдавать категории и удалить заглушку выше
-    # categories: dict = await UserAPI.get_categories()
-
-    await message.answer(text, reply_markup=get_categories(categories))
+    categories: dict[int, str] = await UserAPI.get_categories()
+    if not categories:
+        await MessageReporter.send_report_to_admins('Categories not found.')
+    Category.categories = categories
+    await message.answer(text, reply_markup=get_categories_keyboard(categories))
     await UserState.enter_category.set()
 
 
@@ -67,10 +64,10 @@ async def ask_price_handler(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
     await callback.message.delete()
 
-    category: str = callback.data.rsplit('_', maxsplit=1)[-1]
+    category_id: str = callback.data.rsplit('_', maxsplit=1)[-1]
     data: dict = await state.get_data()
     userdata: Worksheet = data['userdata']
-    userdata.category = category
+    userdata.category_id = category_id
     await state.update_data(userdata=userdata)
 
     text = bot_texts.enter_price
@@ -82,7 +79,11 @@ async def ask_price_handler(callback: CallbackQuery, state: FSMContext) -> None:
 async def ask_was_advertised_handler(message: Message, state: FSMContext):
     data: dict = await state.get_data()
     userdata: Worksheet = data['userdata']
-    userdata.price = int(message.text)
+    userdata.price = check_is_int(message.text)
+    if not userdata.price:
+        text = "Ошибка.\n" + bot_texts.enter_price
+        await message.answer(text, reply_markup=StartMenu.cancel_keyboard())
+        return
     await state.update_data(userdata=userdata)
 
     text = bot_texts.was_advertised
@@ -120,24 +121,47 @@ async def complete_worksheet_handler(message: Message, state: FSMContext):
     data: dict = await state.get_data()
     userdata: Worksheet = data['userdata']
     userdata.what_after = message.text
-
-    text = (
-        f"Ваша заявка:"
+    text = "Ваша заявка:"
+    await message.answer(text, reply_markup=StartMenu.keyboard())
+    order_text = (
         f"\nИмя: {userdata.name}"
         f"\nСсылка: {userdata.target_link}"
-        f"\nКатегория: {userdata.category}"
+        f"\nКатегория: {Category.categories[userdata.category_id]}"
         f"\nБюджет: {userdata.price}"
         f"\nРекламировали раньше? {'Да' if userdata.was_advertised else 'Нет'}"
         f"\nЧто дальше? {userdata.what_after}"
     )
     logger.debug(f'Userdata: {userdata.as_dict()}')
-    await message.answer(text, reply_markup=StartMenu.keyboard())
+    await message.answer(order_text, reply_markup=StartMenu.keyboard())
     result: 'DataStructure' = await UserAPI.send_worksheet(userdata=userdata.as_dict())
     text = bot_texts.worksheet_not_ok
-    if result and result.success:
+    if result and result.status in range(200, 300):
         text = bot_texts.worksheet_ok
+        try:
+            new_order_text = (
+                f"Новая заявка:"
+                f"\n{order_text}"
+                f"\nКлиент: {userdata.username}"
+            )
+            await bot.send_message(
+                chat_id=f'-100{settings.GROUP_ID}',
+                text=new_order_text
+            )
+        except Exception as err:
+            logger.exception(err)
     await message.answer(text, reply_markup=StartMenu.keyboard())
     await state.finish()
+
+
+@logger.catch
+def check_is_int(text: str) -> int:
+    """Проверяет что в строке пришло положительное число и возвращает его обратно если да"""
+
+    if text.isdigit():
+        if int(text) > 0:
+            return int(text)
+
+    return 0
 
 
 @logger.catch

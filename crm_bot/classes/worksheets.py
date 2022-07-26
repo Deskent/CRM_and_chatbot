@@ -1,6 +1,10 @@
 from pydantic import BaseModel
 
 
+class Category:
+    categories: dict = {}
+
+
 class Worksheet(BaseModel):
     telegram_id: int = None
     name: str = None
@@ -8,7 +12,7 @@ class Worksheet(BaseModel):
     last_name: str = None
     username: str = None
     target_link: str = None
-    category: str = None
+    category_id: int = None
     price: int = None
     was_advertised: bool = None
     what_after: str = None
@@ -25,18 +29,3 @@ class BotTexts(BaseModel):
     category_list: str = 'Список категорий:'
     was_advertised: str = "Велась ли раньше работа над проектом?"
     what_after: str = "Что хотите видеть после сотрудничества со специалистом?"
-
-
-
-if __name__ == '__main__':
-    data = {
-        'enter_name': 'Enter your name',
-        'enter_link': 'Enter link ',
-        'something': 123
-    }
-    texts = BotTexts(**data)
-    # for key, value in data.items():
-    #     if key in texts.__annotations__:
-    #         texts.__setattr__(key, value)
-    # print(texts.__annotations__)
-    print(texts.enter_name, texts.enter_link, texts.__dict__)

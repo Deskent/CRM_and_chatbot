@@ -36,7 +36,7 @@ class API:
 class UserAPI(API):
     """Класс для работы с АПИ пользователя"""
 
-    __URL: str = '/users'
+    __URL: str = ''
 
     @classmethod
     @logger.catch
@@ -44,29 +44,30 @@ class UserAPI(API):
         """Отправить анкету"""
 
         endpoint: str = cls.__URL + '/send_worksheet'
-        data = {
-            "worksheet": userdata
-        }
-        return await cls._post_request(data=data, endpoint=endpoint)
+
+        return await cls._post_request(data=userdata, endpoint=endpoint)
 
     @classmethod
     @logger.catch
-    async def update_texts(cls: 'UserAPI') -> bool:
+    async def get_texts(cls: 'UserAPI') -> bool:
         """Обновить тексты"""
 
-        endpoint: str = cls.__URL + '/update_texts'
+        endpoint: str = cls.__URL + '/get_texts'
 
         result: 'DataStructure' = await cls._get_request(endpoint=endpoint)
-        if result and result.success and result.data:
+        if result and result.status == 200 and result.data:
             bot_texts.update_all(result.data)
             return True
 
     @classmethod
     @logger.catch
-    async def get_categories(cls: 'UserAPI') -> dict:
+    async def get_categories(cls: 'UserAPI') -> dict[int, str]:
         """Получить категории"""
 
         endpoint: str = cls.__URL + '/get_categories'
 
         result: 'DataStructure' = await cls._get_request(endpoint=endpoint)
-        return result.data if result else {}
+        if result and result.status == 200 and result.data:
+            return result.data
+        logger.warning(f'Categories getting error: {result}')
+        return {}
