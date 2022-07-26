@@ -2,14 +2,14 @@ import aiogram.utils.exceptions
 from aiogram import Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
-from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import Message, CallbackQuery
 from datastructurepack import DataStructure
 
 from classes.api_requests import UserAPI
 from classes.errors_reporter import MessageReporter
 from classes.keyboards_classes import get_categories_keyboard, StartMenu
 from classes.worksheets import Category, Worksheet
-from config import bot_texts, logger, bot, settings
+from config import logger, bot, settings
 from decorators.for_handlers import check_message_private
 from states import UserState
 
@@ -17,15 +17,13 @@ from states import UserState
 @check_message_private
 @logger.catch
 async def ask_name_handler(message: Message, state: FSMContext):
-    if not await UserAPI.get_texts():
-        logger.warning('Texts update error.')
     userdata = Worksheet()
-    userdata.username = '@' + message.from_user.username if message.from_user.username else 'No name'
-    userdata.first_name = message.from_user.first_name
-    userdata.last_name = message.from_user.last_name
+    userdata.username = '@' + message.from_user.username if message.from_user.username else '-'
+    userdata.first_name = message.from_user.first_name if message.from_user.first_name else '-'
+    userdata.last_name = message.from_user.last_name if message.from_user.last_name else '-'
     userdata.telegram_id = message.from_user.id
     await state.update_data(userdata=userdata)
-    text = bot_texts.enter_name
+    text = 'Введите имя:'
     await message.answer(text, reply_markup=StartMenu.cancel_keyboard())
     await UserState.enter_name.set()
 
@@ -38,7 +36,7 @@ async def choose_interview(message: Message, state: FSMContext):
     userdata.name = message.text
     await state.update_data(userdata=userdata)
 
-    text = bot_texts.category_list
+    text = 'Выберите категорию:'
     categories: dict[int, str] = await UserAPI.get_categories()
     if not categories:
         await MessageReporter.send_report_to_admins('Categories not found.')
@@ -94,9 +92,9 @@ async def finish_interview(message: Message, userdata: Worksheet):
     await message.answer(order_text, reply_markup=StartMenu.keyboard())
 
     result: 'DataStructure' = await UserAPI.send_worksheet(userdata=userdata.as_dict())
-    text = bot_texts.worksheet_not_ok
+    text = 'Заявка не отправлена'
     if result and result.status in range(200, 300):
-        text = bot_texts.worksheet_ok
+        text = 'Заявка отправлена'
         try:
             new_order_text = (
                 f"Новая заявка:"

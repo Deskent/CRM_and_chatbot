@@ -2,25 +2,17 @@ from typing import Callable
 
 from django.http import JsonResponse
 from rest_framework.generics import (
-    views, ListAPIView, GenericAPIView, CreateAPIView)
+    views, GenericAPIView, CreateAPIView)
 
 from app_api.models import Client, Order, Answer
 from app_api.serializers import (
     SetOrderSerializerModel,
 )
-from app_api.services import DBITexts, DBIClient, DBIOrder, DBICategories, DBIPoll
+from app_api.services import DBIClient, DBIOrder, DBICategories, DBIPoll
 
 
 class GetCategoriesViewSet(views.APIView):
-    get_data = DBICategories.get_texts
-
-    def get(self, request, *args, **kwargs):
-        data = self.get_data()
-        return JsonResponse(data=data, safe=False)
-
-
-class GetTextsViewSet(views.APIView):
-    get_data = DBITexts.get_texts
+    get_data = DBICategories.get_categories
 
     def get(self, request, *args, **kwargs):
         data = self.get_data()

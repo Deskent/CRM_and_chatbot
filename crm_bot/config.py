@@ -28,5 +28,3 @@ tgToken: str = settings.TELEBOT_TOKEN
 bot = Bot(token=tgToken)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
-
-bot_texts = BotTexts()
