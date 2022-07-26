@@ -21,8 +21,10 @@ class AnswerAdminModel(admin.ModelAdmin):
 
 
 class PollAdminModel(admin.ModelAdmin):
-    list_display = ['id', 'order_number', 'text']
+    list_display = ['category', 'order_number', 'text']
     list_editable = ['order_number', 'text']
+    list_filter = ['category']
+    search_fields = ['text']
 
 
 class OrderAdminModel(admin.ModelAdmin):
