@@ -30,7 +30,7 @@ class Client(models.Model):
         verbose_name_plural = 'Клиенты'
 
     def __str__(self):
-        return f'Клиент: имя-{self.name}, телеграм ID-{self.telegram_id}'
+        return self.name
 
 
 class Order(models.Model):
