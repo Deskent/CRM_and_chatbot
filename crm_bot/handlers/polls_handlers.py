@@ -50,6 +50,10 @@ async def start_interview(callback: CallbackQuery, state: FSMContext):
     userdata: Worksheet = data['userdata']
     userdata.category_id = category_id
     poll: list[str] = await UserAPI.get_poll_by_category(category_id)
+    if not poll:
+        await state.finish()
+        await finish_interview(callback.message, userdata=userdata)
+        return
     userdata.poll = [[question] for question in poll]
     current_index = 0
     current_question: str = userdata.poll[current_index][0]
@@ -81,10 +85,11 @@ async def finish_interview(message: Message, userdata: Worksheet):
 
     text = "Ваша заявка:"
     await message.answer(text, reply_markup=StartMenu.keyboard())
+    answers: str = '\n'.join(f"{elem[0]}\n{elem[1]}" for elem in userdata.poll)
     order_text = (
         f"\nИмя: {userdata.name}"
         f"\nКатегория: {Category.categories[str(userdata.category_id)]}"
-        f"\nВопросы: {userdata.poll}"
+        f"\nВопросы:\n{answers}"
     )
 
     logger.debug(f'Userdata: {userdata.as_dict()}')
@@ -92,9 +97,9 @@ async def finish_interview(message: Message, userdata: Worksheet):
     await message.answer(order_text, reply_markup=StartMenu.keyboard())
 
     result: 'DataStructure' = await UserAPI.send_worksheet(userdata=userdata.as_dict())
-    text = 'Заявка не отправлена'
+    text = 'Заявка не отправлена.'
     if result and result.status in range(200, 300):
-        text = 'Заявка отправлена'
+        text = 'Заявка отправлена.'
         try:
             new_order_text = (
                 f"Новая заявка:"
