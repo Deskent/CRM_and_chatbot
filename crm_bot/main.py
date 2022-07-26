@@ -42,7 +42,7 @@ async def on_startup(_):
         await send_report_to_admins(text)
     except Exception as err:
         logger.error(err)
-    logger.info(f'Bot started {__appname__}')
+    logger.info(f'Bot started {text}')
 
 
 async def on_shutdown(dp) -> None:

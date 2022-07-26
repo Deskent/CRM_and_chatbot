@@ -4,7 +4,6 @@ from aiogram.dispatcher import FSMContext
 
 from config import logger, Dispatcher, bot
 from classes.keyboards_classes import BaseMenu, StartMenu
-from decorators.for_handlers import check_message_private
 
 
 @logger.catch
