@@ -11,11 +11,8 @@ class Worksheet(BaseModel):
     first_name: str = None
     last_name: str = None
     username: str = None
-    target_link: str = None
     category_id: int = None
-    price: int = None
-    was_advertised: bool = None
-    what_after: str = None
+    poll: list[list[str]] = None
 
     def as_dict(self) -> dict:
         return self.__dict__

@@ -164,7 +164,7 @@ def register_worksheet_handlers(dp: Dispatcher) -> None:
     Регистратор для функций данного модуля
     """
 
-    dp.register_message_handler(ask_name_handler, Text(equals=[StartMenu.worksheet]))
+    # dp.register_message_handler(ask_name_handler, Text(equals=[StartMenu.worksheet]))
     dp.register_message_handler(ask_link_handler, state=UserState.enter_name)
     dp.register_message_handler(ask_category_handler, state=UserState.enter_link)
     dp.register_callback_query_handler(ask_price_handler, state=UserState.enter_category)
