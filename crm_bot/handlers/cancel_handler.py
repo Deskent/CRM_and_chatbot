@@ -25,7 +25,6 @@ async def message_cancel_handler(message: Message, state: FSMContext) -> None:
         telegram_id=message.from_user.id, name=message.from_user.username, state=state)
 
 
-@check_message_private
 @logger.catch
 async def send_cancel_message(telegram_id: int, name: str, state: FSMContext) -> None:
     """
