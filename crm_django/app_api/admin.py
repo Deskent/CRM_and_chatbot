@@ -3,10 +3,6 @@ from django.contrib import admin
 from app_api.models import Client, Category, Order, Poll, Answer
 
 
-# class OrderInline(admin.TabularInline):
-#     model = Order
-
-
 class ClientAdminModel(admin.ModelAdmin):
     list_display = ['username', 'name', 'last_name', 'first_name']
     list_editable = ['name']
@@ -18,11 +14,24 @@ class CategoryAdminModel(admin.ModelAdmin):
     list_display = ['id', 'name']
 
 
-class AnswerAdminModel(admin.TabularInline):
+class AnswerInlineModel(admin.TabularInline):
     model = Answer
-    # list_display = ['id', 'order', 'question', 'answer']
-    # readonly_fields = ['order']
-    # inlines = [OrderInline]
+
+
+class AnswerAdminModel(admin.ModelAdmin):
+    model = Answer
+    list_display = ['order', 'category', 'client',  'question', 'answer']
+    readonly_fields = ['order']
+
+    def category(self, obj):
+        return obj.order.category
+
+    category.short_description = 'Категория'
+
+    def client(self, obj):
+        return obj.order.client
+
+    client.short_description = 'Клиент'
 
 
 class PollAdminModel(admin.ModelAdmin):
@@ -37,11 +46,12 @@ class OrderAdminModel(admin.ModelAdmin):
     list_filter = ['client', 'category']
     search_fields = ['client', 'category']
     list_editable = ['category']
-    inlines = [AnswerAdminModel]
+    inlines = [AnswerInlineModel]
+
 
 admin.site.register(Client, ClientAdminModel)
 admin.site.register(Category, CategoryAdminModel)
 admin.site.register(Order, OrderAdminModel)
 admin.site.register(Poll, PollAdminModel)
-# admin.site.register(Answer, AnswerAdminModel)
+admin.site.register(Answer, AnswerAdminModel)
 
