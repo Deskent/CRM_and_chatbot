@@ -1,4 +1,4 @@
-from app_api.models import Texts, Client, Order, Category
+from app_api.models import Texts, Client, Order, Category, Poll
 
 
 class DBITexts:
@@ -45,18 +45,10 @@ class DBIOrder:
     def get_dict(
             cls,
             category_id: int,
-            target_link='',
-            price=0,
-            was_advertised=False,
-            what_after='',
             **kwargs
     ):
         return {
             'category_id': category_id,
-            'target_link': target_link,
-            'price': price,
-            'was_advertised': was_advertised,
-            'what_after': what_after,
         }
 
 
@@ -64,10 +56,20 @@ class DBICategories:
     model = Category
 
     @classmethod
-    def get_texts(cls):
+    def get_texts(cls) -> dict:
         categories = cls.model.objects.all()
         result = {}
         for category in categories:
             result[category.id] = category.description
 
         return result
+
+
+class DBIPoll:
+    model = Poll
+
+    @classmethod
+    def get_poll(cls, category_id: int) -> list[str]:
+        poll = cls.model.objects.filter(category_id=category_id).all()
+
+        return [question.text for question in poll]

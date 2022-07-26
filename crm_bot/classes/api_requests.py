@@ -71,3 +71,17 @@ class UserAPI(API):
             return result.data
         logger.warning(f'Categories getting error: {result}')
         return {}
+
+    @classmethod
+    @logger.catch
+    async def get_poll_by_category(cls: 'UserAPI', category_id: int) -> list[str]:
+        """Получить список вопросов для категории отсортированный по порядку,
+         в котором их нужно задавать"""
+
+        endpoint: str = cls.__URL + f'/get_poll_by_category/{category_id}'
+
+        result: 'DataStructure' = await cls._get_request(endpoint=endpoint)
+        if result and result.status == 200 and result.data:
+            return result.data
+        logger.warning(f'Poll getting error: {result}')
+        return []

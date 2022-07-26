@@ -28,6 +28,7 @@ class Category(models.Model):
         db_table = 'categories'
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
+        ordering = ['id']
 
     def __str__(self):
         return f'Категория {self.name}'
@@ -53,13 +54,8 @@ class Client(models.Model):
 
 class Order(models.Model):
     client = models.ForeignKey(Client, related_name='orders', on_delete=models.CASCADE)
-    target_link = models.CharField(
-        max_length=250, default='', blank=True, verbose_name='Целевая ссылка')
     category = models.ForeignKey(
         Category, related_name='client', verbose_name='Категория', on_delete=models.CASCADE)
-    price = models.IntegerField(validators=[MinValueValidator(1)], verbose_name='Бюджет')
-    was_advertised = models.BooleanField(default=False, verbose_name='Была реклама?')
-    what_after = models.TextField(max_length=1500, verbose_name='Что после')
 
     def __str__(self):
         return f'Заказ №{self.id}'
@@ -79,3 +75,30 @@ class Texts(models.Model):
         db_table = 'texts'
         verbose_name = 'Текст'
         verbose_name_plural = 'Тексты'
+
+
+class Poll(models.Model):
+    category = models.ForeignKey(
+        Category, related_name='poll', verbose_name='Категория', on_delete=models.CASCADE)
+    text = models.TextField(max_length=1000, verbose_name='Текст вопроса')
+    order_number = models.IntegerField(
+        unique=True, validators=[MinValueValidator(1)], verbose_name='Порядковый номер')
+
+    class Meta:
+        db_table = 'polls'
+        verbose_name = 'Опрос'
+        verbose_name_plural = 'Опросы'
+        ordering = ['order_number']
+
+
+class Answer(models.Model):
+    order = models.ForeignKey(
+        Order, related_name='answers', verbose_name='Заказ', on_delete=models.CASCADE)
+    question = models.TextField(max_length=1500, verbose_name='Вопрос')
+    answer = models.TextField(max_length=1500, verbose_name='Ответ')
+
+    class Meta:
+        db_table = 'answers'
+        ordering = ['order']
+        verbose_name = 'Ответ'
+        verbose_name_plural = 'Ответы'
