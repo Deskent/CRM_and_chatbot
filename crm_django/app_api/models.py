@@ -1,28 +1,9 @@
 from django.db import models
 from django.core.validators import MinValueValidator
-from dataclasses import dataclass
-
-
-@dataclass
-class Worksheet:
-    telegram_id: int = None
-    name: str = None
-    first_name: str = None
-    last_name: str = None
-    username: str = None
-    target_link: str = None
-    category: str = None
-    price: int = None
-    was_advertised: bool = None
-    what_after: str = None
-
-    def as_dict(self) -> dict:
-        return self.__dict__
 
 
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name='Название категории')
-    description = models.CharField(max_length=100, verbose_name='Описание категории')
 
     class Meta:
         db_table = 'categories'
@@ -66,22 +47,12 @@ class Order(models.Model):
         verbose_name_plural = 'Заказы'
 
 
-class Texts(models.Model):
-    title = models.CharField(max_length=50, unique=True, verbose_name='Поле бота')
-    text = models.TextField(max_length=1000, verbose_name='Текст вопроса')
-    description = models.CharField(max_length=50, verbose_name='Описание (где будет задан)')
-
-    class Meta:
-        db_table = 'texts'
-        verbose_name = 'Текст'
-        verbose_name_plural = 'Тексты'
-
-
 class Poll(models.Model):
     category = models.ForeignKey(
         Category, related_name='poll', verbose_name='Категория', on_delete=models.CASCADE)
     text = models.TextField(max_length=1000, verbose_name='Текст вопроса')
-    order_number = models.IntegerField(validators=[MinValueValidator(1)], verbose_name='Порядковый номер')
+    order_number = models.IntegerField(
+        validators=[MinValueValidator(1)], verbose_name='Порядковый номер')
 
     class Meta:
         db_table = 'polls'
@@ -102,4 +73,3 @@ class Answer(models.Model):
         ordering = ['order']
         verbose_name = 'Ответ'
         verbose_name_plural = 'Ответы'
-
