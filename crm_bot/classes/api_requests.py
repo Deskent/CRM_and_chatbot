@@ -1,13 +1,6 @@
-from decimal import Decimal, getcontext
-
-from classes.bot_texts import BotTexts
-from config import logger, settings, bot_texts
+from config import logger, settings
 from classes.request_classes import PostRequest, GetRequest
 from datastructurepack import DataStructure
-
-getcontext().prec = 5
-Litecoin = Decimal
-Dollars = Decimal
 
 
 class API:
@@ -46,18 +39,6 @@ class UserAPI(API):
         endpoint: str = cls.__URL + '/send_worksheet'
 
         return await cls._post_request(data=userdata, endpoint=endpoint)
-
-    @classmethod
-    @logger.catch
-    async def get_texts(cls: 'UserAPI') -> bool:
-        """Обновить тексты"""
-
-        endpoint: str = cls.__URL + '/get_texts'
-
-        result: 'DataStructure' = await cls._get_request(endpoint=endpoint)
-        if result and result.status == 200 and result.data:
-            bot_texts.update_all(result.data)
-            return True
 
     @classmethod
     @logger.catch
