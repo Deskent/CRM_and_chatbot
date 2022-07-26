@@ -1,17 +1,4 @@
-from app_api.models import Texts, Client, Order, Category, Poll
-
-
-class DBITexts:
-    model = Texts
-
-    @classmethod
-    def get_texts(cls):
-        texts = cls.model.objects.all()
-        result = {}
-        for text in texts:
-            result[text.title] = text.text
-
-        return result
+from app_api.models import Client, Order, Category, Poll
 
 
 class DBIClient:
@@ -56,7 +43,7 @@ class DBICategories:
     model = Category
 
     @classmethod
-    def get_texts(cls) -> dict:
+    def get_categories(cls) -> dict:
         categories = cls.model.objects.all()
         result = {}
         for category in categories:
