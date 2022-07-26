@@ -18,9 +18,10 @@ async def ask_name_handler(message: Message, state: FSMContext):
     if not await UserAPI.get_texts():
         logger.warning('Texts update error.')
     userdata = Worksheet()
+    # todo если нет юзернейма - спрашивать телефон или другой контакт
     userdata.username = '@' + message.from_user.username if message.from_user.username else 'No name'
-    userdata.first_name = message.from_user.first_name
-    userdata.last_name = message.from_user.last_name
+    userdata.first_name = message.from_user.first_name if message.from_user.first_name else 'No name'
+    userdata.last_name = message.from_user.last_name if message.from_user.last_name else 'No name'
     userdata.telegram_id = message.from_user.id
     await state.update_data(userdata=userdata)
     text = bot_texts.enter_name
@@ -137,9 +138,14 @@ async def complete_worksheet_handler(message: Message, state: FSMContext):
     if result and result.status in range(200, 300):
         text = bot_texts.worksheet_ok
         try:
+            new_order_text = (
+                f"Новая заявка:"
+                f"\n{order_text}"
+                f"\nКлиент: {userdata.username}"
+            )
             await bot.send_message(
                 chat_id=f'-100{settings.GROUP_ID}',
-                text=f"Новая заявка:\n{order_text}"
+                text=new_order_text
             )
         except Exception as err:
             logger.exception(err)
