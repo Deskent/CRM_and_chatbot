@@ -69,6 +69,9 @@ class Answer(models.Model):
     question = models.TextField(max_length=1500, verbose_name='Вопрос')
     answer = models.TextField(max_length=1500, verbose_name='Ответ')
 
+    def __str__(self):
+        return ''
+
     class Meta:
         db_table = 'answers'
         ordering = ['order']
