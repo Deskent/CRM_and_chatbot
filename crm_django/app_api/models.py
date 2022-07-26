@@ -34,7 +34,8 @@ class Client(models.Model):
 
 
 class Order(models.Model):
-    client = models.ForeignKey(Client, related_name='orders', on_delete=models.CASCADE)
+    client = models.ForeignKey(
+        Client, related_name='orders', verbose_name='Клиент', on_delete=models.CASCADE)
     category = models.ForeignKey(
         Category, related_name='client', verbose_name='Категория', on_delete=models.CASCADE)
 
