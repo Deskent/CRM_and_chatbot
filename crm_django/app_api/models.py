@@ -31,7 +31,7 @@ class Category(models.Model):
         ordering = ['id']
 
     def __str__(self):
-        return f'Категория {self.name}'
+        return f'{self.name}'
 
 
 class Client(models.Model):
@@ -81,14 +81,14 @@ class Poll(models.Model):
     category = models.ForeignKey(
         Category, related_name='poll', verbose_name='Категория', on_delete=models.CASCADE)
     text = models.TextField(max_length=1000, verbose_name='Текст вопроса')
-    order_number = models.IntegerField(
-        unique=True, validators=[MinValueValidator(1)], verbose_name='Порядковый номер')
+    order_number = models.IntegerField(validators=[MinValueValidator(1)], verbose_name='Порядковый номер')
 
     class Meta:
         db_table = 'polls'
         verbose_name = 'Опрос'
         verbose_name_plural = 'Опросы'
         ordering = ['order_number']
+        unique_together = ['category', 'order_number']
 
 
 class Answer(models.Model):
@@ -102,3 +102,4 @@ class Answer(models.Model):
         ordering = ['order']
         verbose_name = 'Ответ'
         verbose_name_plural = 'Ответы'
+
