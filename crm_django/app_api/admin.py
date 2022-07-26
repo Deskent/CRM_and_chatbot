@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.forms import TextInput, Textarea
+from django.db import models
 
 from app_api.models import Client, Category, Order, Poll, Answer
 
@@ -16,6 +18,11 @@ class CategoryAdminModel(admin.ModelAdmin):
 
 class AnswerInlineModel(admin.TabularInline):
     model = Answer
+    my_widget = Textarea(attrs={
+        "cols": "40", "rows": "3", "class": "vLargeTextField", "maxlength": "1500", "required": ""})
+    formfield_overrides = {
+        models.TextField: {'widget': my_widget},
+    }
 
 
 class AnswerAdminModel(admin.ModelAdmin):
@@ -33,12 +40,24 @@ class AnswerAdminModel(admin.ModelAdmin):
 
     client.short_description = 'Клиент'
 
+    my_widget = Textarea(attrs={
+        "cols": "40", "rows": "3", "class": "vLargeTextField", "maxlength": "1500", "required": ""})
+    formfield_overrides = {
+        models.TextField: {'widget': my_widget},
+    }
+
 
 class PollAdminModel(admin.ModelAdmin):
     list_display = ['category', 'order_number', 'text']
     list_editable = ['order_number', 'text']
     list_filter = ['category']
     search_fields = ['text']
+
+    my_widget = Textarea(attrs={
+        "cols": "40", "rows": "3", "class": "vLargeTextField", "maxlength": "1500", "required": ""})
+    formfield_overrides = {
+        models.TextField: {'widget': my_widget},
+    }
 
 
 class OrderAdminModel(admin.ModelAdmin):
