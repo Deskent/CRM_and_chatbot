@@ -47,7 +47,7 @@ class DBICategories:
         categories = cls.model.objects.all()
         result = {}
         for category in categories:
-            result[category.id] = category.description
+            result[category.id] = category.name
 
         return result
 
