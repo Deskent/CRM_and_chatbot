@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.forms import TextInput, Textarea
+from django.forms import Textarea
 from django.db import models
 
 from app_api.models import Client, Category, Order, Poll, Answer
@@ -18,27 +18,6 @@ class CategoryAdminModel(admin.ModelAdmin):
 
 class AnswerInlineModel(admin.TabularInline):
     model = Answer
-    my_widget = Textarea(attrs={
-        "cols": "40", "rows": "3", "class": "vLargeTextField", "maxlength": "1500", "required": ""})
-    formfield_overrides = {
-        models.TextField: {'widget': my_widget},
-    }
-
-
-class AnswerAdminModel(admin.ModelAdmin):
-    model = Answer
-    list_display = ['order', 'category', 'client',  'question', 'answer']
-    readonly_fields = ['order']
-
-    def category(self, obj):
-        return obj.order.category
-
-    category.short_description = 'Категория'
-
-    def client(self, obj):
-        return obj.order.client
-
-    client.short_description = 'Клиент'
 
     my_widget = Textarea(attrs={
         "cols": "40", "rows": "3", "class": "vLargeTextField", "maxlength": "1500", "required": ""})
@@ -61,16 +40,18 @@ class PollAdminModel(admin.ModelAdmin):
 
 
 class OrderAdminModel(admin.ModelAdmin):
-    list_display = ['id', 'category', 'client']
+    list_display = ['id', 'category', 'client', 'contact']
     list_filter = ['client', 'category']
     search_fields = ['client', 'category']
     list_editable = ['category']
+    readonly_fields = ['client']
     inlines = [AnswerInlineModel]
+
+    def contact(self, obj):
+        return obj.client.username
 
 
 admin.site.register(Client, ClientAdminModel)
 admin.site.register(Category, CategoryAdminModel)
 admin.site.register(Order, OrderAdminModel)
 admin.site.register(Poll, PollAdminModel)
-admin.site.register(Answer, AnswerAdminModel)
-
