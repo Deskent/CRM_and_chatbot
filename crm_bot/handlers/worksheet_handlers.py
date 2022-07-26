@@ -18,6 +18,7 @@ async def ask_name_handler(message: Message, state: FSMContext):
     if not await UserAPI.get_texts():
         logger.warning('Texts update error.')
     userdata = Worksheet()
+    # todo если нет юзернейма - спрашивать телефон или другой контакт
     userdata.username = '@' + message.from_user.username if message.from_user.username else 'No name'
     userdata.first_name = message.from_user.first_name if message.from_user.first_name else 'No name'
     userdata.last_name = message.from_user.last_name if message.from_user.last_name else 'No name'
