@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from app_api.models import Client, Category, Order, Texts
+from app_api.models import Client, Category, Order, Texts, Poll, Answer
 
 
 class ClientAdminModel(admin.ModelAdmin):
@@ -15,11 +15,21 @@ class CategoryAdminModel(admin.ModelAdmin):
     list_editable = ['description']
 
 
+class AnswerAdminModel(admin.ModelAdmin):
+    list_display = ['id', 'order', 'question', 'answer']
+    readonly_fields = ['order']
+
+
+class PollAdminModel(admin.ModelAdmin):
+    list_display = ['id', 'order_number', 'text']
+    list_editable = ['order_number', 'text']
+
+
 class OrderAdminModel(admin.ModelAdmin):
-    list_display = ['id', 'category', 'price', 'what_after']
+    list_display = ['id', 'category']
     list_filter = ['client', 'category']
     search_fields = ['client', 'category']
-    list_editable = ['category', 'price', 'what_after']
+    list_editable = ['category']
 
 
 class TextsAdminModel(admin.ModelAdmin):
@@ -32,4 +42,6 @@ admin.site.register(Client, ClientAdminModel)
 admin.site.register(Category, CategoryAdminModel)
 admin.site.register(Order, OrderAdminModel)
 admin.site.register(Texts, TextsAdminModel)
+admin.site.register(Poll, PollAdminModel)
+admin.site.register(Answer, AnswerAdminModel)
 

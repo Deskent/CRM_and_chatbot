@@ -1,36 +1,37 @@
+from typing import Callable
+
 from django.http import JsonResponse
 from rest_framework.generics import (
     views, ListAPIView, GenericAPIView, CreateAPIView)
 
-from app_api.models import Client, Order
+from app_api.models import Client, Order, Answer
 from app_api.serializers import (
-    AllIfoSerializerModelAlt,
     SetOrderSerializerModel,
 )
-from app_api.services import DBITexts, DBIClient, DBIOrder, DBICategories
-
-
-class GetWorksheetsViewSet(ListAPIView, GenericAPIView):
-    serializer_class = AllIfoSerializerModelAlt
-    queryset = Order.objects.select_related('client').select_related('category').all()
-
-    def get(self, request, *args, **kwargs):
-        return self.list(request)
+from app_api.services import DBITexts, DBIClient, DBIOrder, DBICategories, DBIPoll
 
 
 class GetCategoriesViewSet(views.APIView):
-    data = DBICategories.get_texts
+    get_data = DBICategories.get_texts
 
     def get(self, request, *args, **kwargs):
-        data = self.data()
+        data = self.get_data()
         return JsonResponse(data=data, safe=False)
 
 
 class GetTextsViewSet(views.APIView):
-    data = DBITexts.get_texts
+    get_data = DBITexts.get_texts
 
     def get(self, request, *args, **kwargs):
-        data = self.data()
+        data = self.get_data()
+        return JsonResponse(data=data, safe=False)
+
+
+class GetPollByCategoryViewSet(views.APIView):
+    get_data: Callable = DBIPoll.get_poll
+
+    def get(self, request, *args, **kwargs):
+        data: list[str] = self.get_data(category_id=kwargs['category_id'])
         return JsonResponse(data=data, safe=False)
 
 
@@ -45,6 +46,13 @@ class SetWorksheetsViewSet(CreateAPIView, GenericAPIView):
         order = DBIOrder.get_dict(**data)
         order['client_id'] = client.id
         order, order_create = Order.objects.get_or_create(**order)
+
+        answers = [
+            Answer(**{'order_id': order.id, 'question': question, 'answer': answer})
+            for question, answer in data.get('poll')
+        ]
+
+        Answer.objects.bulk_create(answers)
 
     def get(self, request, *args, **kwargs):
         return self.create(request)

@@ -8,3 +8,4 @@ class UserState(StatesGroup):
     enter_price = State()
     was_advertised = State()
     what_after = State()
+    interview = State()

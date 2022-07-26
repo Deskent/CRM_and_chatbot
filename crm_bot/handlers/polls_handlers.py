@@ -1,0 +1,128 @@
+import aiogram.utils.exceptions
+from aiogram import Dispatcher
+from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters import Text
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from datastructurepack import DataStructure
+
+from classes.api_requests import UserAPI
+from classes.errors_reporter import MessageReporter
+from classes.keyboards_classes import get_categories_keyboard, StartMenu
+from classes.worksheets import Category, Worksheet
+from config import bot_texts, logger, bot, settings
+from decorators.for_handlers import check_message_private
+from states import UserState
+
+
+@check_message_private
+@logger.catch
+async def ask_name_handler(message: Message, state: FSMContext):
+    if not await UserAPI.get_texts():
+        logger.warning('Texts update error.')
+    userdata = Worksheet()
+    userdata.username = '@' + message.from_user.username if message.from_user.username else 'No name'
+    userdata.first_name = message.from_user.first_name
+    userdata.last_name = message.from_user.last_name
+    userdata.telegram_id = message.from_user.id
+    await state.update_data(userdata=userdata)
+    text = bot_texts.enter_name
+    await message.answer(text, reply_markup=StartMenu.cancel_keyboard())
+    await UserState.enter_name.set()
+
+
+async def choose_interview(message: Message, state: FSMContext):
+    await state.set_state(UserState.interview)
+
+    data: dict = await state.get_data()
+    userdata: Worksheet = data['userdata']
+    userdata.name = message.text
+    await state.update_data(userdata=userdata)
+
+    text = bot_texts.category_list
+    categories: dict[int, str] = await UserAPI.get_categories()
+    if not categories:
+        await MessageReporter.send_report_to_admins('Categories not found.')
+    Category.categories = categories
+    await message.answer(text, reply_markup=get_categories_keyboard(categories))
+
+
+async def start_interview(callback: CallbackQuery, state: FSMContext):
+    category_id: int = int(callback.data.split('_')[-1])
+    data: dict = await state.get_data()
+    userdata: Worksheet = data['userdata']
+    userdata.category_id = category_id
+    poll: list[str] = await UserAPI.get_poll_by_category(category_id)
+    userdata.poll = [[question] for question in poll]
+    current_index = 0
+    current_question: str = userdata.poll[current_index][0]
+
+    await state.update_data(userdata=userdata, current_index=current_index)
+
+    await callback.answer(f'start poll {callback.data}')
+    await callback.message.answer(current_question)
+
+
+async def ask_question(message: Message, state: FSMContext):
+    data = await state.get_data()
+    userdata: Worksheet = data['userdata']
+    current_index = data.get('current_index')
+    userdata.poll[current_index].append(message.text)
+    current_index += 1
+    if current_index >= len(userdata.poll):
+        await state.finish()
+        await finish_interview(message, userdata=userdata)
+        return
+
+    current_question: str = userdata.poll[current_index][0]
+
+    await state.update_data(userdata=userdata, current_index=current_index)
+    await message.answer(current_question)
+
+
+async def finish_interview(message: Message, userdata: Worksheet):
+
+    text = "Ваша заявка:"
+    await message.answer(text, reply_markup=StartMenu.keyboard())
+    order_text = (
+        f"\nИмя: {userdata.name}"
+        f"\nКатегория: {Category.categories[str(userdata.category_id)]}"
+        f"\nВопросы: {userdata.poll}"
+    )
+
+    logger.debug(f'Userdata: {userdata.as_dict()}')
+
+    await message.answer(order_text, reply_markup=StartMenu.keyboard())
+
+    result: 'DataStructure' = await UserAPI.send_worksheet(userdata=userdata.as_dict())
+    text = bot_texts.worksheet_not_ok
+    if result and result.status in range(200, 300):
+        text = bot_texts.worksheet_ok
+        try:
+            new_order_text = (
+                f"Новая заявка:"
+                f"\n{order_text}"
+                f"\nКлиент: {userdata.username}"
+            )
+            await bot.send_message(
+                chat_id=f'-100{settings.GROUP_ID}',
+                text=new_order_text
+            )
+        except aiogram.utils.exceptions.NeedAdministratorRightsInTheChannel as err:
+            logger.exception(err)
+            await MessageReporter.send_report_to_admins('Бот должен быть администратором')
+        except Exception as err:
+            logger.exception(err)
+    await message.answer(text, reply_markup=StartMenu.keyboard())
+
+
+def register_polls_handlers(dp: Dispatcher) -> None:
+
+    dp.register_message_handler(ask_name_handler, Text(equals=[StartMenu.worksheet]))
+    dp.register_message_handler(choose_interview, state=UserState.enter_name)
+
+    dp.register_callback_query_handler(
+        start_interview,
+        state=[UserState.interview]
+    )
+
+    dp.register_message_handler(ask_question, state=[UserState.interview])
