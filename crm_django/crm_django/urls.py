@@ -15,7 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-
+admin.site.site_url = None
+admin.site.site_header = 'CRM проект'
 
 urlpatterns = [
     path('api/v1/crm/admin/', admin.site.urls),
