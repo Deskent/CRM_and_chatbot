@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'app_api',
+    'app_api.apps.AppApiConfig',
 ]
 
 MIDDLEWARE = [
@@ -139,3 +139,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 DJANGO_SETTINGS_MODULE = BASE_DIR / 'crm_django' / 'settings.py'
+
+BASE_URL = '/api/v1/crm/admin/'
