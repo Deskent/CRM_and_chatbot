@@ -53,3 +53,9 @@ class SetWorksheetsViewSet(CreateAPIView, GenericAPIView):
 
 class GrabberView(TemplateView):
     template_name = 'app_api/grabber.html'
+    extra_context = {'title': 'Grabber'}
+
+
+class MainView(TemplateView):
+    template_name = 'app_api/main.html'
+    extra_context = {'title': 'Главная'}

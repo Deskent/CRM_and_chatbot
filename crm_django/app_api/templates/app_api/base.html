@@ -11,13 +11,30 @@
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
 </head>
-
 <body class="py-4">
 <main>
-    <h3>Main</h3>
-    {% block content %}
-    {% endblock %}
-</main>
+    <nav class="py-2 bg-light border-bottom">
+        <div class="container d-flex flex-wrap">
+            <ul class="nav me-auto">
+                <li class="nav-item">
+                    <a href="{% url 'main' %}" class="nav-link link-dark px-2 active"
+                       aria-current="page">Главная</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'grabber' %}" class="nav-link link-dark px-2 active"
+                       aria-current="page">Grabber</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <br><br>
+    <a href="https://t.me/DigitALLHack_bot">Telegram бот для заказа</a>
+    <br><br>
+        {% block content %}
+        {% endblock %}
+    </div>
 
+</main>
 </body>
 </html>
