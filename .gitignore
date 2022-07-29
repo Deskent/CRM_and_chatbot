@@ -1,3 +1,5 @@
+**/static/
+/crm_django/files
 /.env.prod
 .github.env
 **/db
