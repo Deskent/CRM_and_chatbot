@@ -1,6 +1,7 @@
 from typing import Callable
 
 from django.http import JsonResponse
+from django.views.generic import TemplateView
 from rest_framework.generics import (
     views, GenericAPIView, CreateAPIView)
 
@@ -48,3 +49,7 @@ class SetWorksheetsViewSet(CreateAPIView, GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         return self.create(request)
+
+
+class GrabberView(TemplateView):
+    template_name = 'app_api/grabber.html'
