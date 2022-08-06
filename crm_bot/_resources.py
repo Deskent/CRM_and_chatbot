@@ -1,4 +1,4 @@
-__build__ = '1.0.16'
+__build__ = '1.0.17'
 __version__ = '1.0'
 __author__ = 'Deskent & Vovk-wan'
 __appname__ = "CRM and Chat-bot"
