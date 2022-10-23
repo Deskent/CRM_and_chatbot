@@ -31,9 +31,10 @@ async def wait_file(message: Message, state: FSMContext):
     text = '\n'.join(result)
     await message.answer(
         f'Ссылки из файла {file_name}:'
-        f'\n{text}',
+        f'\n\n{text}',
         disable_web_page_preview=True,
-        disable_notification=True
+        disable_notification=True,
+        reply_markup=StartMenu.keyboard()
     )
     await state.finish()
 
