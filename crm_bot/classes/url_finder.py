@@ -1,7 +1,6 @@
 import re
 from typing import List
 
-
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
@@ -17,11 +16,28 @@ class URLFinder:
         filename: str
             Path to pdf file
 
+        http: str = True
+            Flag for search links starts from http
+
+        www: str = True
+            Flag for search links starts from www
+
+        email: str = True
+            Flag for search links contains character '@'
+
     Methods
         get_links
     """
-    def __init__(self, filename: str):
+
+    def __init__(self, filename: str, http: bool = True, www: bool = True, email: bool = True):
         self.filename: str = filename
+        self.patterns: list[str] = []
+        if http:
+            self.patterns.append('(http.*)')
+        if www:
+            self.patterns.append('(www.*)')
+        if email:
+            self.patterns.append('(.*@.*)')
 
     def get_links(self) -> List[str]:
         """Parse pdf file and returns all links from it"""
@@ -38,29 +54,28 @@ class URLFinder:
         retstr = BytesIO()
         layout = LAParams(all_texts=True)
         device = TextConverter(manager, retstr, laparams=layout)
-        filepath = open(self.filename, 'rb')
-        interpreter = PDFPageInterpreter(manager, device)
+        with open(self.filename, 'rb') as file:
+            interpreter = PDFPageInterpreter(manager, device)
 
-        for page in PDFPage.get_pages(filepath, check_extractable=True):
-            interpreter.process_page(page)
+            for page in PDFPage.get_pages(file, check_extractable=True):
+                interpreter.process_page(page)
 
-        text = retstr.getvalue()
+            text = retstr.getvalue()
 
-        filepath.close()
         device.close()
         retstr.close()
 
         return text.decode()
 
-    @staticmethod
-    def _get_all_links(text: str) -> List[str]:
+    def _get_all_links(self, text: str) -> List[str]:
         """Return list of all links and emails from string"""
 
-        pattern = r'(http.*)|(www.*)|(.*@.*)'
-        result: list = re.findall(pattern, text)
-        return [
-            i
-            for elem in result
-            for i in elem
-            if i
+        pattern = self.patterns[0] if len(self.patterns) == 1 else r'|'.join(self.patterns)
+        results: list = re.findall(pattern, text)
+
+        return results if len(results) < 2 else [
+            url
+            for array in results
+            for url in array
+            if url
         ]
