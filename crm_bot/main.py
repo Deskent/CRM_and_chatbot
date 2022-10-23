@@ -8,11 +8,13 @@ from _resources import __appname__, __build__, __version__
 
 from handlers.main_handlers import register_main_handlers
 from handlers.cancel_handler import register_cancel_handlers
+from handlers.pdf_to_text_handler import register_pdf_handlers
 from handlers.polls_handlers import register_polls_handlers
 
 
 register_cancel_handlers(dp=dp)
 register_polls_handlers(dp=dp)
+register_pdf_handlers(dp=dp)
 register_main_handlers(dp=dp)
 
 
