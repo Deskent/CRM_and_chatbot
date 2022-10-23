@@ -1,4 +1,5 @@
 aiogram==2.19
+pdfminer.six==20220524
 pydantic==1.9.1
 pytest-aio==1.4.1
 python-dotenv==0.19.2

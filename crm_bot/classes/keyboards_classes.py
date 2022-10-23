@@ -42,6 +42,7 @@ class StartMenu(BaseMenu):
 
     worksheet: str = 'Пройти опрос'
     help: str = 'Помощь'
+    pdf_to_text: str = 'Распознать PDF ссылки'
 
     @classmethod
     @logger.catch
@@ -51,6 +52,7 @@ class StartMenu(BaseMenu):
         return default_keyboard().add(
             KeyboardButton(cls.worksheet),
             KeyboardButton(cls.help),
+            KeyboardButton(cls.pdf_to_text),
             KeyboardButton(cls.cancel_key),
         )
 

@@ -7,3 +7,4 @@ class UserState(StatesGroup):
     enter_contact_data = State()
     share_phone = State()
     interview = State()
+    wait_pdf_file = State()
