@@ -1,4 +1,4 @@
-Django==4.0.8
+Django==4.0.10
 gunicorn==20.1.0
 psycopg2==2.9.3
 pytest-aio==1.4.1
